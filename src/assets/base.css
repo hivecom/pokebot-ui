@@ -1,0 +1,13 @@
+@import "./reset.css";
+
+:root {
+  --dark-color-bg: #111;
+  --dark-color-fg: #0a0a0a;
+  --dark-color-accent: #a7fc2f;
+  --dark-color-bg-accent-raised: #69b103;
+  --dark-color-bg-accent-lowered: #4e8502;
+
+  --dark-color-text: #fff;
+  --dark-color-text-lighter: rgb(110, 110, 110);
+  --dark-color-border-weak: #181818;
+}
