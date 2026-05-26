@@ -51,7 +51,6 @@ const { mutate: playSong } = usePlaySong();
     </div>
     <div v-else-if="songs.data" class="favourites">
         <input id="search" placeholder="Search" />
-        <li class="albums">
             <table>
                 <tbody>
                     <tr class="song" @click="playSong(song)" v-for="song in favouritedSongs" :key="song.id">
@@ -63,15 +62,17 @@ const { mutate: playSong } = usePlaySong();
                     </tr>
                 </tbody>
             </table>
-        </li>
     </div>
 </template>
 
 <style scoped>
-#search {
-    width: 100%;
-    margin: 15px 0px;
-}
+.favourites {
+    overflow-y: auto;
+
+    #search {
+        width: 100%;
+        margin: 15px 0px;
+    }
     li {
         list-style-type: none;
     }
@@ -89,7 +90,6 @@ const { mutate: playSong } = usePlaySong();
         border-bottom: 1px solid var(--dark-color-border-weak);
         margin-bottom: 10px;
         background-color: var(--dark-color-fg);
-
 
         .cover {
             width: 85px;
@@ -113,4 +113,5 @@ const { mutate: playSong } = usePlaySong();
             }
         }
     }
+}
 </style>
