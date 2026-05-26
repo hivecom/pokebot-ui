@@ -1,6 +1,10 @@
 import axios, { AxiosError, type AxiosResponse } from "axios";
 
-export const URL_ROOT = "https://pokebot.hivecom.net";
+export let URL_ROOT = "https://pokebot.hivecom.net";
+if (import.meta.env.DEV) {
+  URL_ROOT = "http://localhost:45538";
+}
+
 export const API_ROOT = `${URL_ROOT}/api`;
 
 async function handleResponse<O>(

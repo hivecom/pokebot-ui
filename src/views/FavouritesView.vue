@@ -58,7 +58,7 @@ const { mutate: playSong } = usePlaySong();
                         <td class="number" v-if="song.track">{{song.track}}.</td>
                         <td class="number" v-else></td>
                         <th class="name" scope="row">{{song.title}}</th>
-                        <td class="likes">12 <FavouriteButton :songId="song.id"/></td>
+                        <td class="likes">{{song.favourite_count}} <FavouriteButton :songId="song.id"/></td>
                         <td class="duration">{{formatDuration(audioFiles.data?.find(f => f.id === song.file_id)?.duration ?? null)}}</td>
                     </tr>
                 </tbody>

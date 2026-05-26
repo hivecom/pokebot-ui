@@ -1,10 +1,12 @@
 import { useQueryCache, defineMutation, useMutation } from "@pinia/colada";
 import { postSong } from "@/api/current";
 import {
+  ALBUM_STORE_KEY,
   AUDIO_FILE_STORE_KEY,
   BOT_STORE_KEY,
   CURRENT_STORE_KEY,
   FAVOURITE_STORE_KEY,
+  SONG_STORE_KEY,
 } from "@/main";
 import type { AudioMetadata } from "@/types/AudioMetadata";
 import type { BotData } from "@/types/BotData";
@@ -13,6 +15,7 @@ import { putState } from "@/api/botData";
 import type { AudioFile } from "@/types/AudioFile";
 import { deleteFavourite, postFavourite } from "@/api/favourite";
 import type { Favourite } from "@/types/Favourite";
+import type { Album } from "@/types/Album";
 
 export const usePlaySong = defineMutation(() => {
   const queryCache = useQueryCache();
@@ -278,10 +281,26 @@ export const useSetFavourite = defineMutation(() => {
       }
     },
     onMutate({ songId, doFavourite }) {
-      let oldData =
+      let oldFavs =
         queryCache.getQueryData<Favourite[]>(FAVOURITE_STORE_KEY) ?? [];
+      const oldAlbums = queryCache.getQueryData<Album[]>(ALBUM_STORE_KEY) ?? [];
 
-      let newData = [];
+      let newFavs = [];
+      const newAlbums = oldAlbums.map((album) => {
+        return {
+          ...album,
+          songs: album.songs.map((song) =>
+            song.id === songId
+              ? {
+                  ...song,
+                  favourite_count:
+                    song.favourite_count + (doFavourite ? 1 : -1),
+                }
+              : song,
+          ),
+        };
+      });
+
       let newFavourite = null;
       if (doFavourite) {
         newFavourite = {
@@ -289,31 +308,41 @@ export const useSetFavourite = defineMutation(() => {
           song_id: songId,
           created_at: Date.now(),
         };
-        newData = [...oldData, newFavourite];
+        newFavs = [...oldFavs, newFavourite];
       } else {
-        newData = oldData.filter((f) => f.song_id !== songId);
+        newFavs = oldFavs.filter((f) => f.song_id !== songId);
       }
-      queryCache.setQueryData(FAVOURITE_STORE_KEY, newData);
+      queryCache.setQueryData(FAVOURITE_STORE_KEY, newFavs);
       queryCache.cancelQueries({ key: FAVOURITE_STORE_KEY });
+      queryCache.setQueryData(ALBUM_STORE_KEY, newAlbums);
+      queryCache.cancelQueries({ key: ALBUM_STORE_KEY });
 
       return {
-        newData,
-        oldData,
+        newFavs,
+        oldFavs,
+        oldAlbums,
+        newAlbums,
         doFavourite,
       };
     },
 
-    onError(err, _title, { oldData, newData }) {
+    onError(err, _title, { oldFavs, newFavs, oldAlbums, newAlbums }) {
       // before applying the rollback, we need to check if the value in the cache is the same
       // because the cache could have been updated by another mutation or query
-      if (newData === queryCache.getQueryData(BOT_STORE_KEY)) {
-        queryCache.setQueryData(FAVOURITE_STORE_KEY, oldData);
+      if (newFavs === queryCache.getQueryData(FAVOURITE_STORE_KEY)) {
+        queryCache.setQueryData(FAVOURITE_STORE_KEY, oldFavs);
       } else {
         queryCache.invalidateQueries({ key: FAVOURITE_STORE_KEY });
       }
 
+      if (newAlbums === queryCache.getQueryData(ALBUM_STORE_KEY)) {
+        queryCache.setQueryData(ALBUM_STORE_KEY, oldAlbums);
+      } else {
+        queryCache.invalidateQueries({ key: ALBUM_STORE_KEY });
+      }
+
       // handle the error
-      console.error("An error occurred when adding a song:", err);
+      console.error("An error occurred when favouriting a song:", err);
     },
 
     onSuccess(fav: Favourite, _vars, { doFavourite }) {

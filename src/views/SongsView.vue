@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useQuery } from "@pinia/colada";
+import { ref } from "vue";
 import { getAlbums } from "@/api/album.ts";
 import AlbumPane from "@/components/AlbumPane.vue";
 import { ALBUM_STORE_KEY } from "@/main";
@@ -12,7 +13,10 @@ const {
 	key: ALBUM_STORE_KEY,
 	query: getAlbums,
 });
+
+const search = ref("");
 </script>
+
 
 <template>
     <div v-if="asyncStatus === 'loading'">
@@ -22,9 +26,9 @@ const {
         Error: {{ albumList.error }}
     </div>
     <div v-else-if="albumList.data" class="songs">
-        <input id="search" placeholder="Search" />
+        <input id="search" placeholder="Search" v-model="search" />
         <li class="albums">
-            <AlbumPane :album="album"  v-for="album in albumList.data" :key="album.id"/>
+            <AlbumPane :album="album" :filter="search"  v-for="album in albumList.data" :key="album.id"/>
         </li>
     </div>
 </template>

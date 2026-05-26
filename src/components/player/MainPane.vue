@@ -94,7 +94,7 @@ function clicked(event: PointerEvent) {
 </script>
 
 <template>
-    <div class="player" v-if="botState.data && botState.data.currently_playing">
+    <div class="player" v-if="!botState.error && botState.data && botState.data.currently_playing">
         <div class="left">
             <a :href="currentURL">
                 {{ botState.data.currently_playing?.title ?? "Unknown Title" }}

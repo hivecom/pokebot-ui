@@ -61,7 +61,7 @@ in {
         cfg.nginx.virtualHost
         {
           # NOTE: i'm not sure why but this does not work without settings a priority
-          root = lib.mkForce "${cfg.web.package}/share/pokebot-vue";
+          root = lib.mkForce "${cfg.package}/share/pokebot-vue";
 
           locations = {
             "/" = {

@@ -1,23 +1,37 @@
 <script setup lang="ts">
 import { useQuery } from "@pinia/colada";
 import { computed } from "vue";
-import { getFavourites } from "@/api/favourite";
 import { URL_ROOT } from "@/api/request";
 import { getFiles } from "@/api/song";
-import { AUDIO_FILE_STORE_KEY, FAVOURITE_STORE_KEY } from "@/main";
+import { AUDIO_FILE_STORE_KEY } from "@/main";
 import { usePlaySong } from "@/store/mutations";
 import type { Album } from "@/types/Album";
 import { formatDuration } from "@/util";
 import FavouriteButton from "./FavouriteButton.vue";
 import IconDefaultCover from "./icons/IconDefaultCover.vue";
 
-const { album } = defineProps<{
+const { album, filter } = defineProps<{
 	album: Album;
+	filter: string;
 }>();
 
 const { state: audioFiles } = useQuery({
 	key: AUDIO_FILE_STORE_KEY,
 	query: getFiles,
+});
+
+const filteredSongs = computed(() => {
+	if (filter !== "") {
+		const lfilter = filter.toLowerCase();
+		return album.songs.filter(
+			(s) =>
+				s.title.toLowerCase().includes(lfilter) ||
+				s.artist.toLowerCase().includes(lfilter) ||
+				(s.album && s.album.toLowerCase().includes(lfilter)),
+		);
+	} else {
+		return album.songs;
+	}
 });
 
 const totalDuration = computed(() => {
@@ -48,11 +62,11 @@ const { mutate: playSong } = usePlaySong();
         </div>
         <table>
             <tbody>
-                <tr class="song" @click="playSong(song)" v-for="song in album.songs" :key="song.id">
+                <tr class="song" @click="playSong(song)" v-for="song in filteredSongs" :key="song.id">
                     <td class="number" v-if="song.track">{{song.track}}.</td>
                     <td class="number" v-else></td>
                     <th class="name" scope="row">{{song.title}}</th>
-                    <td class="likes">12 <FavouriteButton :songId="song.id"/></td>
+                    <td class="likes">{{song.favourite_count}} <FavouriteButton :songId="song.id"/></td>
                     <td class="duration">{{formatDuration(audioFiles.data?.find(f => f.id === song.file_id)?.duration ?? null)}}</td>
                 </tr>
             </tbody>
@@ -76,7 +90,6 @@ const { mutate: playSong } = usePlaySong();
         border-bottom: 1px solid var(--dark-color-border-weak);
         margin-bottom: 10px;
         background-color: var(--dark-color-fg);
-
 
         .cover {
             width: 85px;

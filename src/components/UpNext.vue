@@ -1,12 +1,24 @@
 <script setup lang="ts">
 import { useQuery } from "@pinia/colada";
+import { onMounted } from "vue";
 import { getAlbums } from "@/api/current.ts";
 import { CURRENT_STORE_KEY } from "@/main";
 import { formatDuration } from "@/util";
 
-const { state: currentlyPlaying, asyncStatus } = useQuery({
+const {
+	state: currentlyPlaying,
+	asyncStatus,
+	refresh,
+} = useQuery({
 	key: CURRENT_STORE_KEY,
 	query: getAlbums,
+});
+
+let refreshTimer: ReturnType<typeof setInterval>;
+onMounted(() => {
+	refreshTimer = setInterval(() => {
+		refresh();
+	}, 10000);
 });
 </script>
 
@@ -15,8 +27,8 @@ const { state: currentlyPlaying, asyncStatus } = useQuery({
         <div v-if="asyncStatus === 'loading'">
             Loading...
         </div>
-        <div v-if="currentlyPlaying.error">
-            Error: {{ currentlyPlaying.error }}
+        <div class="error" v-if="currentlyPlaying.error">
+            No bot in your channel
         </div>
         <template v-else-if="currentlyPlaying.data">
             <div class="top">
@@ -70,6 +82,14 @@ const { state: currentlyPlaying, asyncStatus } = useQuery({
 
 <style scoped>
 .up-next {
+    .error {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
     .top {
         display: flex;
         margin-bottom: 20px;
