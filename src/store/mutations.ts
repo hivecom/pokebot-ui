@@ -6,7 +6,6 @@ import {
   BOT_STORE_KEY,
   CURRENT_STORE_KEY,
   FAVOURITE_STORE_KEY,
-  SONG_STORE_KEY,
 } from "@/main";
 import type { AudioMetadata } from "@/types/AudioMetadata";
 import type { BotData } from "@/types/BotData";

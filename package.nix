@@ -4,7 +4,7 @@
 }:
 buildNpmPackage {
   version = "0.1.0";
-  pname = "pokebot-vue";
+  pname = "pokebot-ui";
   src = lib.cleanSource ./.;
   npmDepsHash = "sha256-rybDJPFMtIVCR4SBaqNKBR2oL8t4n+97qobeMtB4Z68=";
   makeCacheWritable = true;
@@ -12,8 +12,8 @@ buildNpmPackage {
 
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/share/pokebot-vue
-    mv dist/* $out/share/pokebot-vue
+    mkdir -p $out/share/pokebot-ui
+    mv dist/* $out/share/pokebot-ui
     runHook postInstall
   '';
 

@@ -53,7 +53,6 @@ const search = ref("");
         flex-direction: column;
         gap: 10px;
         overflow-y: auto;
-        scrollbar-width: thin;
     }
 }
 </style>

@@ -19,18 +19,18 @@
         }
     );
   in {
-    overlays.default = final: _: {pokebot-vue = final.callPackage ./package.nix {};};
+    overlays.default = final: _: {pokebot-ui = final.callPackage ./package.nix {};};
 
     packages = forEachSystem (system: {
-      pokebot-vue =
+      pokebot-ui =
         pkgsBySystem.${system}.callPackage ./package.nix {};
-      default = self.packages.${system}.pokebot-vue;
+      default = self.packages.${system}.pokebot-ui;
     });
 
     devShells = forEachSystem (system: {
       default = pkgsBySystem.${system}.callPackage ./shell.nix {};
     });
 
-    nixosModules.default = import ./nixos-modules/pokebot-vue-service.nix;
+    nixosModules.default = import ./nixos-modules/pokebot-ui-service.nix;
   };
 }

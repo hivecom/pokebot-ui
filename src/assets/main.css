@@ -6,6 +6,7 @@ body {
   height: 100%;
   color: var(--dark-color-text);
   font-family: "DejaVu Sans", sans-serif;
+  scrollbar-color: var(--dark-color-accent) var(--dark-color-fg);
 }
 
 #app {
@@ -29,6 +30,10 @@ button,
   color: var(--dark-color-text);
   border-radius: 5px;
   box-sizing: border-box;
+}
+button,
+.button {
+  cursor: pointer;
 }
 
 table {

@@ -6,15 +6,15 @@
   ...
 }:
 with lib; let
-  cfg = config.services.pokebot-vue;
+  cfg = config.services.pokebot-ui;
 in {
   options = {
-    services.pokebot-vue = {
+    services.pokebot-ui = {
       enable = mkOption {
         type = types.bool;
         default = false;
         description = ''
-          Whether to run pokebot-vue.
+          Whether to run pokebot-ui.
         '';
       };
       package = mkOption {
@@ -61,7 +61,7 @@ in {
         cfg.nginx.virtualHost
         {
           # NOTE: i'm not sure why but this does not work without settings a priority
-          root = lib.mkForce "${cfg.package}/share/pokebot-vue";
+          root = lib.mkForce "${cfg.package}/share/pokebot-ui";
 
           locations = {
             "/" = {

@@ -98,7 +98,6 @@ async function updateMetadata() {
     padding: 10px;
 
     overflow-y: scroll;
-    scrollbar-width: thin;
     max-height: 90vh;
 
     p {

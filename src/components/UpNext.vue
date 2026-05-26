@@ -106,7 +106,6 @@ onMounted(() => {
     .overflow {
         height: calc(100% - 60px);
         overflow-y: auto;
-        scrollbar-width: thin;
     }
 }
 </style>

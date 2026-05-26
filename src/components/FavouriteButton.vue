@@ -27,12 +27,16 @@ const { mutate: setFavourite } = useSetFavourite();
 </script>
 
 <template>
-    <IconHeartFilled @click.stop="setFavourite({songId, doFavourite: false})" class="heart" v-if="isFavourited"/>
+    <IconHeartFilled @click.stop="setFavourite({songId, doFavourite: false})" class="heart filled" v-if="isFavourited"/>
     <IconHeartOutline @click.stop="setFavourite({songId, doFavourite: true})" class="heart" v-else/>
 </template>
 
 <style scoped>
 .heart {
-    color: var(--dark-color-accent);
+    color: var(--dark-color-text-lighter);
+
+    &.filled {
+        color: var(--dark-color-accent);
+    }
 }
 </style>

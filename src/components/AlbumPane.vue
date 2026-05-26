@@ -76,6 +76,8 @@ const { mutate: playSong } = usePlaySong();
 
 <style scoped>
 .album {
+    margin-right: 5px;
+
     .song {
         cursor: pointer;
     }
