@@ -47,7 +47,7 @@ const { mutate: playSong } = usePlaySong();
 </script>
 
 <template>
-    <div class="album">
+    <div class="album" v-if="filteredSongs.length > 0">
         <div class="head">
             <img v-if="album.cover" :src="`${URL_ROOT}/${album.cover}`" class="cover"/>
             <IconDefaultCover v-else class="cover" />
