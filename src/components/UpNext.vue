@@ -3,6 +3,7 @@ import { useQuery } from "@pinia/colada";
 import { onMounted } from "vue";
 import { getAlbums } from "@/api/current.ts";
 import { CURRENT_STORE_KEY } from "@/main";
+import { usePostBot } from "@/store/mutations";
 import { formatDuration } from "@/util";
 
 const {
@@ -20,6 +21,8 @@ onMounted(() => {
 		refresh();
 	}, 10000);
 });
+
+let { mutate: postBot } = usePostBot();
 </script>
 
 <template>
@@ -29,6 +32,7 @@ onMounted(() => {
         </div>
         <div class="error" v-if="currentlyPlaying.error">
             No bot in your channel
+            <button @click="() => postBot()">Request Bot</button>
         </div>
         <template v-else-if="currentlyPlaying.data">
             <div class="top">

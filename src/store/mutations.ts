@@ -10,7 +10,7 @@ import {
 import type { AudioMetadata } from "@/types/AudioMetadata";
 import type { BotData } from "@/types/BotData";
 import type { Song } from "@/types/Song";
-import { putState } from "@/api/botData";
+import { postBot, putState } from "@/api/botData";
 import type { AudioFile } from "@/types/AudioFile";
 import { deleteFavourite, postFavourite } from "@/api/favourite";
 import type { Favourite } from "@/types/Favourite";
@@ -261,6 +261,47 @@ export const useSetNext = defineMutation(() => {
   });
 
   return mutation;
+});
+
+export const usePostBot = defineMutation(() => {
+  const queryCache = useQueryCache();
+  return useMutation({
+    mutation: () => postBot(),
+    onMutate() {
+      const newData: BotData = {
+        name: "PokeBot",
+        state: "EndOfStream",
+        volume: 0.3,
+        position: 0,
+        currently_playing: null,
+        playlist: [],
+      };
+      queryCache.setQueryData(BOT_STORE_KEY, newData);
+      queryCache.cancelQueries({ key: BOT_STORE_KEY });
+
+      return {
+        newData,
+      };
+    },
+
+    onSettled() {
+      queryCache.invalidateQueries({ key: CURRENT_STORE_KEY });
+    },
+
+    onError(err, _title, { newData }) {
+      if (newData === queryCache.getQueryData(BOT_STORE_KEY)) {
+        queryCache.setQueryData(BOT_STORE_KEY, null);
+      } else {
+        queryCache.invalidateQueries({ key: BOT_STORE_KEY });
+      }
+
+      console.error("An error occurred when adding a song:", err);
+    },
+
+    onSuccess(newState: BotData, _vars, {}: { newData: BotData }) {
+      queryCache.setQueryData(BOT_STORE_KEY, newState);
+    },
+  });
 });
 
 export const useSetFavourite = defineMutation(() => {
