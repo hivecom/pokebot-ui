@@ -56,6 +56,12 @@ const { mutate: playSong } = usePlaySong();
     <div v-else-if="songs.data" class="favourites">
         <input v-model="search" id="search" placeholder="Search" />
             <table>
+            <colgroup>
+                <col class="col-num">
+                <col class="col-name">
+                <col class="col-likes">
+                <col class="col-duration">
+              </colgroup>
                 <tbody>
                     <tr class="song" @click="playSong(song)" v-for="song in favouritedSongs" :key="song.id">
                         <td class="number" v-if="song.track">{{song.track}}.</td>

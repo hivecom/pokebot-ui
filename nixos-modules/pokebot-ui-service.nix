@@ -20,7 +20,7 @@ in {
       package = mkOption {
         type = types.package;
         default = pkgs.callPackage ../package.nix {};
-        description = "Pokebot-vue package";
+        description = "Pokebot-ui package";
       };
       nginx = {
         enable = mkOption {

@@ -51,8 +51,7 @@ table {
     text-align: right;
   }
 
-  .heart,
-  .number {
+  .heart {
     width: 25px;
   }
 
@@ -62,6 +61,19 @@ table {
 
   .duration {
     width: 100px;
+  }
+
+  .col-num {
+    width: 30px;
+  }
+  .col-likes {
+    width: 60px;
+  }
+  .col-duration {
+    width: 100px;
+  }
+  .col-name {
+    width: auto;
   }
 
   th,

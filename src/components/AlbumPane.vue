@@ -61,6 +61,12 @@ const { mutate: playSong } = usePlaySong();
             </div>
         </div>
         <table>
+            <colgroup>
+                <col class="col-num">
+                <col class="col-name">
+                <col class="col-likes">
+                <col class="col-duration">
+              </colgroup>
             <tbody>
                 <tr class="song" @click="playSong(song)" v-for="song in filteredSongs" :key="song.id">
                     <td class="number" v-if="song.track">{{song.track}}.</td>
@@ -81,10 +87,12 @@ const { mutate: playSong } = usePlaySong();
     .song {
         cursor: pointer;
     }
+
     .likes {
         display: flex;
         align-items: center;
         justify-content: flex-end;
+        width: 60px;
     }
     .head {
         display: flex;

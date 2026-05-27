@@ -56,6 +56,10 @@ function playFile(file: AudioFile) {
     <div v-else-if="songs.data" class="favourites">
         <input v-model="search" id="search" placeholder="Search" />
             <table>
+                <colgroup>
+                    <col class="col-name">
+                    <col class="col-duration">
+                </colgroup>
                 <tbody>
                     <tr class="song" @click="playFile(file)" v-for="file in untaggedFiles" :key="file.id">
                         <td class="name" v-if="file.file_name">{{file.file_name}}</td>
