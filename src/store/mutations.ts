@@ -18,53 +18,58 @@ import type { Album } from "@/types/Album";
 
 export const usePlaySong = defineMutation(() => {
   const queryCache = useQueryCache();
-  const mutation = useMutation({
+  return useMutation({
     mutation: (song: Song) => postSong(song.id),
     onMutate(song) {
+      let oldBotData = queryCache.getQueryData<BotData>(BOT_STORE_KEY);
+      if (!oldBotData) {
+        return;
+      }
+
       let files = queryCache.getQueryData<AudioFile[]>(AUDIO_FILE_STORE_KEY);
-      let newItem: AudioMetadata = {
+      const matchingFile = files?.find((f) => f.id === song.file_id);
+      const newItem = {
         id: 0,
-        url: files?.find((f) => f.id === song.file_id)?.file_path ?? "",
+        url: matchingFile?.file_path ?? "",
         title: song.title,
         webpage_url: null,
         artist: song.artist,
         album: song.album,
         thumbnail: null,
-        duration: files?.find((f) => f.id === song.file_id)?.duration ?? 0,
+        duration: matchingFile?.duration ?? 0,
       };
 
-      let oldData = queryCache.getQueryData<BotData>(BOT_STORE_KEY);
-      if (oldData && !oldData.currently_playing) {
-        const newData = { ...oldData, currently_playing: newItem };
-        queryCache.setQueryData(BOT_STORE_KEY, newData);
+      if (oldBotData && !oldBotData.currently_playing) {
+        const newBotData = { ...oldBotData, currently_playing: newItem };
+        queryCache.setQueryData(BOT_STORE_KEY, newBotData);
         queryCache.cancelQueries({ key: BOT_STORE_KEY });
 
         return {
           newPlaylist: null,
           oldPlaylist: null,
-          newData,
-          oldData,
+          newBotData,
+          oldBotData,
           newItem,
         };
       } else {
         let oldPlaylist =
-          queryCache.getQueryData<AudioMetadata[]>(CURRENT_STORE_KEY);
-        if (!oldPlaylist) {
-          oldPlaylist = [];
-        }
-        newItem.id = Math.max(...oldPlaylist.map((a) => a.id));
-        if (newItem.id === -Infinity) {
-          newItem.id = 0;
-        }
+          queryCache.getQueryData<AudioMetadata[]>(CURRENT_STORE_KEY) ?? [];
+
+        const maxId =
+          oldPlaylist.length > 0
+            ? Math.max(...oldPlaylist.map((a) => a.id))
+            : 0;
+        newItem.id = maxId < 0 ? 0 : maxId;
         const newPlaylist: AudioMetadata[] = [...oldPlaylist, newItem];
+
         queryCache.setQueryData(CURRENT_STORE_KEY, newPlaylist);
         queryCache.cancelQueries({ key: CURRENT_STORE_KEY });
 
         return {
           newPlaylist,
           oldPlaylist,
-          newData: null,
-          oldData: null,
+          newBotData: null,
+          oldBotData: null,
           newItem,
         };
       }
@@ -75,12 +80,12 @@ export const usePlaySong = defineMutation(() => {
       queryCache.invalidateQueries({ key: CURRENT_STORE_KEY });
     },
 
-    onError(err, _title, { oldPlaylist, newPlaylist, oldData, newData }) {
+    onError(err, _title, { oldPlaylist, newPlaylist, oldBotData, newBotData }) {
       if (newPlaylist === queryCache.getQueryData(CURRENT_STORE_KEY)) {
         queryCache.setQueryData(CURRENT_STORE_KEY, oldPlaylist);
       }
-      if (newData === queryCache.getQueryData(BOT_STORE_KEY)) {
-        queryCache.setQueryData(BOT_STORE_KEY, oldData);
+      if (newBotData === queryCache.getQueryData(BOT_STORE_KEY)) {
+        queryCache.setQueryData(BOT_STORE_KEY, oldBotData);
       }
 
       // handle the error
@@ -101,7 +106,7 @@ export const usePlaySong = defineMutation(() => {
       }
 
       const playlist =
-        queryCache.getQueryData<AudioMetadata[]>(CURRENT_STORE_KEY) || [];
+        queryCache.getQueryData<AudioMetadata[]>(CURRENT_STORE_KEY) ?? [];
       const songIndex = playlist.findIndex((t) => t.id === newItem.id);
       if (songIndex >= 0) {
         const copy = playlist.slice();
@@ -110,13 +115,11 @@ export const usePlaySong = defineMutation(() => {
       }
     },
   });
-
-  return mutation;
 });
 
 export const useSetSeek = defineMutation(() => {
   const queryCache = useQueryCache();
-  const mutation = useMutation({
+  return useMutation({
     mutation: (position: number) =>
       putState({
         seek: Math.round(position),
@@ -125,35 +128,34 @@ export const useSetSeek = defineMutation(() => {
         next: false,
       }),
     onMutate(position) {
-      let oldData = queryCache.getQueryData<BotData>(BOT_STORE_KEY);
-      if (!oldData) {
-        console.log("oldData is undefined??");
+      let oldBotData = queryCache.getQueryData<BotData>(BOT_STORE_KEY);
+      if (!oldBotData) {
         return;
       }
-      const newData: BotData = {
-        ...oldData,
+      const newBotData: BotData = {
+        ...oldBotData,
         position,
       };
-      queryCache.setQueryData(BOT_STORE_KEY, newData);
+      queryCache.setQueryData(BOT_STORE_KEY, newBotData);
       queryCache.cancelQueries({ key: BOT_STORE_KEY });
 
       return {
-        newData,
-        oldData,
+        newBotData,
+        oldBotData,
       };
     },
 
-    onError(err, _title, { oldData, newData }) {
+    onError(err, _title, { oldBotData, newBotData }) {
       // before applying the rollback, we need to check if the value in the cache is the same
       // because the cache could have been updated by another mutation or query
-      if (newData === queryCache.getQueryData(BOT_STORE_KEY)) {
-        queryCache.setQueryData(BOT_STORE_KEY, oldData);
+      if (newBotData === queryCache.getQueryData(BOT_STORE_KEY)) {
+        queryCache.setQueryData(BOT_STORE_KEY, oldBotData);
       } else {
         queryCache.invalidateQueries({ key: BOT_STORE_KEY });
       }
 
       // handle the error
-      console.error("An error occurred when adding a song:", err);
+      console.error("An error occurred when seeking:", err);
     },
 
     onSuccess(newState: BotData) {
@@ -164,80 +166,75 @@ export const useSetSeek = defineMutation(() => {
       }
     },
   });
-
-  return mutation;
 });
 
 export const useSetPlaying = defineMutation(() => {
   const queryCache = useQueryCache();
-  const mutation = useMutation({
+  useMutation({
     mutation: (doPlay: boolean) =>
       putState({ playing: doPlay, volume: null, seek: null, next: false }),
     onMutate(doPlay) {
-      let oldData = queryCache.getQueryData<BotData>(BOT_STORE_KEY);
-      if (!oldData) {
-        console.log("oldData is undefined??");
+      let oldBotData = queryCache.getQueryData<BotData>(BOT_STORE_KEY);
+      if (!oldBotData) {
         return;
       }
-      const newData: BotData = {
-        ...oldData,
+      const newBotData: BotData = {
+        ...oldBotData,
         state: doPlay ? "Playing" : "Paused",
       };
-      queryCache.setQueryData(BOT_STORE_KEY, newData);
+      queryCache.setQueryData(BOT_STORE_KEY, newBotData);
       queryCache.cancelQueries({ key: BOT_STORE_KEY });
 
       return {
-        newData,
-        oldData,
+        newBotData,
+        oldBotData,
         doPlay,
       };
     },
 
-    onError(err, _title, { oldData, newData }) {
+    onError(err, _title, { oldBotData, newBotData }) {
       // before applying the rollback, we need to check if the value in the cache is the same
       // because the cache could have been updated by another mutation or query
-      if (newData === queryCache.getQueryData(BOT_STORE_KEY)) {
-        queryCache.setQueryData(BOT_STORE_KEY, oldData);
+      if (newBotData === queryCache.getQueryData(BOT_STORE_KEY)) {
+        queryCache.setQueryData(BOT_STORE_KEY, oldBotData);
       } else {
         queryCache.invalidateQueries({ key: BOT_STORE_KEY });
       }
 
       // handle the error
-      console.error("An error occurred when adding a song:", err);
+      console.error("An error occurred when changing playback state:", err);
     },
 
-    onSuccess(newState: BotData, _vars, {}: { newData: BotData }) {
+    onSuccess(newState: BotData, _vars, {}: { newBotData: BotData }) {
       queryCache.setQueryData(BOT_STORE_KEY, newState);
     },
   });
-
-  return mutation;
 });
 
 export const useSetNext = defineMutation(() => {
   const queryCache = useQueryCache();
-  const mutation = useMutation({
+  useMutation({
     mutation: () =>
       putState({ next: true, playing: null, volume: null, seek: null }),
     onMutate() {
+      let oldBotData = queryCache.getQueryData<BotData>(BOT_STORE_KEY);
+      if (!oldBotData) {
+        return;
+      }
+
       let currentPlaylist =
         queryCache.getQueryData<AudioMetadata[]>(CURRENT_STORE_KEY);
 
-      let oldData = queryCache.getQueryData<BotData>(BOT_STORE_KEY);
-      if (!oldData) {
-        console.log("oldData is undefined");
-        return;
-      }
-      const newData: BotData = {
-        ...oldData,
+      const newBotData: BotData = {
+        ...oldBotData,
         currently_playing: currentPlaylist?.at(0) ?? null,
       };
-      queryCache.setQueryData(BOT_STORE_KEY, newData);
+      queryCache.setQueryData(BOT_STORE_KEY, newBotData);
       queryCache.cancelQueries({ key: BOT_STORE_KEY });
 
       return {
-        newData,
-        oldData,
+        newBotData,
+        oldBotData,
       };
     },
 
@@ -245,22 +242,20 @@ export const useSetNext = defineMutation(() => {
       queryCache.invalidateQueries({ key: CURRENT_STORE_KEY });
     },
 
-    onError(err, _title, { oldData, newData }) {
-      if (newData === queryCache.getQueryData(BOT_STORE_KEY)) {
-        queryCache.setQueryData(BOT_STORE_KEY, oldData);
+    onError(err, _title, { oldBotData, newBotData }) {
+      if (newBotData === queryCache.getQueryData(BOT_STORE_KEY)) {
+        queryCache.setQueryData(BOT_STORE_KEY, oldBotData);
       } else {
         queryCache.invalidateQueries({ key: BOT_STORE_KEY });
       }
 
-      console.error("An error occurred when adding a song:", err);
+      console.error("An error occurred when skipping to next track:", err);
     },
 
-    onSuccess(newState: BotData, _vars, {}: { newData: BotData }) {
+    onSuccess(newState: BotData, _vars, {}: { newBotData: BotData }) {
       queryCache.setQueryData(BOT_STORE_KEY, newState);
     },
   });
-
-  return mutation;
 });
 
 export const usePostBot = defineMutation(() => {
@@ -268,7 +263,11 @@ export const usePostBot = defineMutation(() => {
   return useMutation({
     mutation: () => postBot(),
     onMutate() {
-      const newData: BotData = {
+      if (queryCache.getQueryData(BOT_STORE_KEY)) {
+        return;
+      }
+
+      const newBotData: BotData = {
         name: "PokeBot",
         state: "EndOfStream",
         volume: 0.3,
@@ -276,11 +275,11 @@ export const usePostBot = defineMutation(() => {
         currently_playing: null,
         playlist: [],
       };
-      queryCache.setQueryData(BOT_STORE_KEY, newData);
+      queryCache.setQueryData(BOT_STORE_KEY, newBotData);
       queryCache.cancelQueries({ key: BOT_STORE_KEY });
 
       return {
-        newData,
+        newBotData,
       };
     },
 
@@ -288,17 +287,17 @@ export const usePostBot = defineMutation(() => {
       queryCache.invalidateQueries({ key: CURRENT_STORE_KEY });
     },
 
-    onError(err, _title, { newData }) {
-      if (newData === queryCache.getQueryData(BOT_STORE_KEY)) {
+    onError(err, _title, { newBotData }) {
+      if (newBotData === queryCache.getQueryData(BOT_STORE_KEY)) {
         queryCache.setQueryData(BOT_STORE_KEY, null);
       } else {
         queryCache.invalidateQueries({ key: BOT_STORE_KEY });
       }
 
-      console.error("An error occurred when adding a song:", err);
+      console.error("An error occurred when creating a bot:", err);
     },
 
-    onSuccess(newState: BotData, _vars, {}: { newData: BotData }) {
+    onSuccess(newState: BotData, _vars, {}: { newBotData: BotData }) {
       queryCache.setQueryData(BOT_STORE_KEY, newState);
     },
   });
@@ -306,7 +305,7 @@ export const usePostBot = defineMutation(() => {
 
 export const useSetFavourite = defineMutation(() => {
   const queryCache = useQueryCache();
-  const mutation = useMutation({
+  return useMutation({
     mutation: ({
       songId,
       doFavourite,
@@ -382,7 +381,7 @@ export const useSetFavourite = defineMutation(() => {
       }
 
       // handle the error
-      console.error("An error occurred when favouriting a song:", err);
+      console.error("An error occurred when modifying a favourite:", err);
     },
 
     onSuccess(fav: Favourite, _vars, { doFavourite }) {
@@ -404,6 +403,4 @@ export const useSetFavourite = defineMutation(() => {
       queryCache.setQueryData(FAVOURITE_STORE_KEY, copy);
     },
   });
-
-  return mutation;
 });
