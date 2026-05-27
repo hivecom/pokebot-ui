@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useQuery } from "@pinia/colada";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { getFavourites } from "@/api/favourite";
 import { getFiles, getSongs } from "@/api/song";
 import FavouriteButton from "@/components/FavouriteButton.vue";
@@ -17,11 +17,7 @@ const { state: audioFiles } = useQuery({
 	query: getFiles,
 });
 
-const {
-	state: songs,
-	asyncStatus,
-	refresh,
-} = useQuery({
+const { state: songs, asyncStatus } = useQuery({
 	key: SONG_STORE_KEY,
 	query: getSongs,
 });
@@ -31,11 +27,19 @@ const { state: favourites } = useQuery({
 	query: getFavourites,
 });
 
+const search = ref("");
+
 const favouritedSongs = computed(() => {
 	if (!favourites.value.data || !songs.value.data) return [];
 
-	return songs.value.data.filter((s) =>
-		favourites.value.data?.some((f) => f.song_id === s.id),
+	const lfilter = search.value.toLowerCase();
+	return songs.value.data.filter(
+		(s) =>
+			(lfilter === "" ||
+				s.title.toLowerCase().includes(lfilter) ||
+				s.artist.toLowerCase().includes(lfilter) ||
+				(s.album && s.album.toLowerCase().includes(lfilter))) &&
+			favourites.value.data?.some((f) => f.song_id === s.id),
 	);
 });
 
@@ -50,7 +54,7 @@ const { mutate: playSong } = usePlaySong();
         Error: {{ songs.error }}
     </div>
     <div v-else-if="songs.data" class="favourites">
-        <input id="search" placeholder="Search" />
+        <input v-model="search" id="search" placeholder="Search" />
             <table>
                 <tbody>
                     <tr class="song" @click="playSong(song)" v-for="song in favouritedSongs" :key="song.id">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useQuery } from "@pinia/colada";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { getFiles, getSongs } from "@/api/song";
 import { AUDIO_FILE_STORE_KEY, SONG_STORE_KEY } from "@/main";
 import { usePlaySong } from "@/store/mutations";
@@ -20,10 +20,15 @@ const { state: songs, asyncStatus } = useQuery({
 const untaggedFiles = computed(() => {
 	if (!audioFiles.value.data) return [];
 
-	return audioFiles.value.data.filter((f) =>
-		songs.value.data?.every((s) => s.file_id !== f.id),
+	const lfilter = search.value.toLowerCase();
+	return audioFiles.value.data.filter(
+		(f) =>
+			songs.value.data?.every((s) => s.file_id !== f.id) &&
+			f.file_name.toLowerCase().includes(lfilter),
 	);
 });
+
+const search = ref("");
 
 const { mutate: playSong } = usePlaySong();
 
@@ -49,11 +54,11 @@ function playFile(file: AudioFile) {
         Error: {{ songs.error }}
     </div>
     <div v-else-if="songs.data" class="favourites">
-        <input id="search" placeholder="Search" />
+        <input v-model="search" id="search" placeholder="Search" />
             <table>
                 <tbody>
                     <tr class="song" @click="playFile(file)" v-for="file in untaggedFiles" :key="file.id">
-                        <td class="name" v-if="file.file_name">{{file.file_name}}.</td>
+                        <td class="name" v-if="file.file_name">{{file.file_name}}</td>
                         <td class="duration">{{formatDuration(file.duration)}}</td>
                     </tr>
                 </tbody>
