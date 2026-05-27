@@ -19,7 +19,7 @@ import type { Album } from "@/types/Album";
 export const usePlaySong = defineMutation(() => {
   const queryCache = useQueryCache();
   return useMutation({
-    mutation: (song: Song) => postSong(song.id),
+    mutation: (song: Song) => postSong(song.file_id),
     onMutate(song) {
       let oldBotData = queryCache.getQueryData<BotData>(BOT_STORE_KEY);
       if (!oldBotData) {

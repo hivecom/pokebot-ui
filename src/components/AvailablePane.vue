@@ -10,6 +10,7 @@ import UploadButton from "./UploadButton.vue";
                 <RouterLink to="/">Songs</RouterLink>
                 <RouterLink to="/playlists">Playlists</RouterLink>
                 <RouterLink to="/favourites">Favourites</RouterLink>
+                <RouterLink to="/untagged">Untagged</RouterLink>
             </nav>
             <UploadButton />
         </header>

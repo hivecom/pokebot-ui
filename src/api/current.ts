@@ -6,6 +6,6 @@ export async function getAlbums(): Promise<AudioMetadata[]> {
   return get(`/playlist/current`);
 }
 
-export async function postSong(id: number): Promise<AudioMetadata> {
-  return post(`/playlist/current`, { id });
+export async function postSong(file_id: number): Promise<AudioMetadata> {
+  return post(`/playlist/current`, { file_id });
 }
