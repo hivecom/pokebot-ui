@@ -170,7 +170,7 @@ export const useSetSeek = defineMutation(() => {
 
 export const useSetPlaying = defineMutation(() => {
   const queryCache = useQueryCache();
-  useMutation({
+  return useMutation({
     mutation: (doPlay: boolean) =>
       putState({ playing: doPlay, volume: null, seek: null, next: false }),
     onMutate(doPlay) {
@@ -213,7 +213,7 @@ export const useSetPlaying = defineMutation(() => {
 
 export const useSetNext = defineMutation(() => {
   const queryCache = useQueryCache();
-  useMutation({
+  return useMutation({
     mutation: () =>
       putState({ next: true, playing: null, volume: null, seek: null }),
     onMutate() {
