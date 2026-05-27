@@ -6,7 +6,7 @@ export async function getBotData(): Promise<BotData> {
   return get(`/bot/self`);
 }
 
-export async function postBot(): Promise<BotData> {
+export async function postBot(): Promise<void> {
   return post(`/bot/self`, {});
 }
 

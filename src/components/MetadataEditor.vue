@@ -35,7 +35,7 @@ watch(
 const queryCache = useQueryCache();
 async function updateMetadata() {
 	await Promise.all(
-		uploaded.map((ul) => {
+		editable.value.map((ul) => {
 			if (!ul.metadata.title || !ul.metadata.artist) {
 				return Promise.resolve();
 			}
@@ -61,7 +61,7 @@ async function updateMetadata() {
             <h3>{{audioFiles.data?.find(f => f.id === resp.file_id)?.file_name}}</h3>
             <label>
                 <div class="label">Track</div>
-                <input type="text" placeholder="Track Number" v-model="resp.metadata.track"/>
+                <input type="number" placeholder="Track Number" v-model.number="resp.metadata.track"/>
             </label>
             <label>
                 <div class="label">Title</div>

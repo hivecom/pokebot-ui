@@ -296,10 +296,6 @@ export const usePostBot = defineMutation(() => {
 
       console.error("An error occurred when creating a bot:", err);
     },
-
-    onSuccess(newState: BotData, _vars, {}: { newBotData: BotData }) {
-      queryCache.setQueryData(BOT_STORE_KEY, newState);
-    },
   });
 });
 
