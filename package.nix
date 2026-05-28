@@ -6,7 +6,7 @@ buildNpmPackage {
   version = "0.1.0";
   pname = "pokebot-ui";
   src = lib.cleanSource ./.;
-  npmDepsHash = "sha256-rybDJPFMtIVCR4SBaqNKBR2oL8t4n+97qobeMtB4Z68=";
+  npmDepsHash = "sha256-tzjqdAdpSw0El2ythGqCkbGp2RYdKj1ka64IBgcTJtM=";
   makeCacheWritable = true;
   npmFlags = ["--legacy-peer-deps"];
 

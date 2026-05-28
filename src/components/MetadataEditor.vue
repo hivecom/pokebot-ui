@@ -13,11 +13,7 @@ const { uploaded } = defineProps<{
 const emit =
 	defineEmits<(e: "update:uploaded", value: UploadResponse[]) => void>();
 
-const {
-	state: audioFiles,
-	asyncStatus,
-	refresh,
-} = useQuery({
+const { state: audioFiles } = useQuery({
 	key: AUDIO_FILE_STORE_KEY,
 	query: getFiles,
 });

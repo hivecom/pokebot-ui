@@ -90,3 +90,19 @@ table {
     }
   }
 }
+
+.mx-context-menu {
+  background-color: var(--dark-color-bg) !important;
+  border: 1px solid #45475a;
+  border-radius: 5px !important;
+  padding: 5px 0px !important;
+
+  .mx-context-menu-item {
+    color: var(--dark-color-text) !important;
+  }
+
+  .mx-context-menu-item:hover {
+    background-color: var(--dark-color-accent);
+    color: black !important;
+  }
+}

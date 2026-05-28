@@ -8,6 +8,8 @@ import { PiniaColada } from "@pinia/colada";
 import { useAuthStore } from "./store/authStore";
 import { PiniaColadaDelay } from "@pinia/colada-plugin-delay";
 
+import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css";
+
 export const AUDIO_FILE_STORE_KEY = ["audio"];
 export const ALBUM_STORE_KEY = ["album"];
 export const SONG_STORE_KEY = ["song"];

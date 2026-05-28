@@ -1,14 +1,21 @@
 <script setup lang="ts">
+import {
+	ContextMenu,
+	ContextMenuItem,
+	ContextMenuSeparator,
+} from "@imengyu/vue3-context-menu";
 import { useQuery } from "@pinia/colada";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { URL_ROOT } from "@/api/request";
-import { getFiles } from "@/api/song";
-import { AUDIO_FILE_STORE_KEY } from "@/main";
+import { getFiles, getSongs } from "@/api/song";
+import { AUDIO_FILE_STORE_KEY, SONG_STORE_KEY } from "@/main";
 import { usePlaySong } from "@/store/mutations";
 import type { Album } from "@/types/Album";
+import type { UploadResponse } from "@/types/UploadResponse";
 import { formatDuration } from "@/util";
 import FavouriteButton from "./FavouriteButton.vue";
 import IconDefaultCover from "./icons/IconDefaultCover.vue";
+import MetadataEditor from "./MetadataEditor.vue";
 
 const { album, filter } = defineProps<{
 	album: Album;
@@ -18,6 +25,11 @@ const { album, filter } = defineProps<{
 const { state: audioFiles } = useQuery({
 	key: AUDIO_FILE_STORE_KEY,
 	query: getFiles,
+});
+
+const { state: songs } = useQuery({
+	key: SONG_STORE_KEY,
+	query: getSongs,
 });
 
 const filteredSongs = computed(() => {
@@ -44,6 +56,48 @@ const totalDuration = computed(() => {
 });
 
 const { mutate: playSong } = usePlaySong();
+
+const editorFileId = ref<number | null>(null);
+const editorData = ref<UploadResponse[]>([]);
+
+const menuVisible = ref(false);
+const contextMenuOptions = ref({ x: 0, y: 0 });
+
+const onContextMenu = (e: MouseEvent, fileId: number) => {
+	// Prevent the browser's default right-click menu from opening
+	e.preventDefault();
+
+	// Update coordinates to where the mouse clicked
+	contextMenuOptions.value.x = e.clientX;
+	contextMenuOptions.value.y = e.clientY;
+
+	// Show the menu
+	menuVisible.value = true;
+	editorFileId.value = fileId;
+};
+
+const openEditor = () => {
+	if (!editorFileId.value) {
+		return;
+	}
+	menuVisible.value = false;
+
+	const meta = songs.value.data?.find(
+		(s) => s.file_id === editorFileId.value,
+	) ?? {
+		track: null,
+		title: null,
+		artist: null,
+		album: null,
+	};
+
+	editorData.value = [
+		{
+			file_id: editorFileId.value,
+			metadata: { ...meta, cover_path: null, duration: 0 },
+		},
+	];
+};
 </script>
 
 <template>
@@ -68,7 +122,7 @@ const { mutate: playSong } = usePlaySong();
                 <col class="col-duration">
               </colgroup>
             <tbody>
-                <tr class="song" @click="playSong(song)" v-for="song in filteredSongs" :key="song.id">
+                <tr class="song" @click="playSong(song)" v-for="song in filteredSongs" :key="song.id" @contextmenu="onContextMenu($event, song.file_id)">
                     <td class="number" v-if="song.track">{{song.track}}.</td>
                     <td class="number" v-else></td>
                     <th class="name" scope="row">{{song.title}}</th>
@@ -77,6 +131,11 @@ const { mutate: playSong } = usePlaySong();
                 </tr>
             </tbody>
         </table>
+
+        <MetadataEditor v-if="editorData.length > 0" v-model:uploaded="editorData"/>
+        <ContextMenu v-model:show="menuVisible" :options="contextMenuOptions">
+            <ContextMenuItem @click="openEditor" label="Edit Metadata" />
+        </ContextMenu>
     </div>
 </template>
 
@@ -123,5 +182,7 @@ const { mutate: playSong } = usePlaySong();
             }
         }
     }
+
 }
+
 </style>
