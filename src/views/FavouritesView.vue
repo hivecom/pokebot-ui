@@ -4,6 +4,7 @@ import { computed, ref } from "vue";
 import { getFavourites } from "@/api/favourite";
 import { getFiles, getSongs } from "@/api/song";
 import FavouriteButton from "@/components/FavouriteButton.vue";
+import MyContextMenu from "@/components/MyContextMenu.vue";
 import {
 	AUDIO_FILE_STORE_KEY,
 	FAVOURITE_STORE_KEY,
@@ -44,6 +45,24 @@ const favouritedSongs = computed(() => {
 });
 
 const { mutate: playSong } = usePlaySong();
+
+const editorFileId = ref<number | null>(null);
+
+const menuVisible = ref(false);
+const contextPosition = ref({ x: 0, y: 0 });
+
+const onContextMenu = (e: MouseEvent, fileId: number) => {
+	// Prevent the browser's default right-click menu from opening
+	e.preventDefault();
+
+	// Update coordinates to where the mouse clicked
+	contextPosition.value.x = e.clientX;
+	contextPosition.value.y = e.clientY;
+
+	// Show the menu
+	menuVisible.value = true;
+	editorFileId.value = fileId;
+};
 </script>
 
 <template>
@@ -63,7 +82,7 @@ const { mutate: playSong } = usePlaySong();
                 <col class="col-duration">
               </colgroup>
                 <tbody>
-                    <tr class="song" @click="playSong(song)" v-for="song in favouritedSongs" :key="song.id">
+                    <tr class="song" @click="playSong(song)" v-for="song in favouritedSongs" :key="song.id" @contextmenu="onContextMenu($event, song.file_id)">
                         <td class="number" v-if="song.track">{{song.track}}.</td>
                         <td class="number" v-else></td>
                         <th class="name" scope="row">{{song.title}}</th>
@@ -73,6 +92,7 @@ const { mutate: playSong } = usePlaySong();
                 </tbody>
             </table>
     </div>
+    <MyContextMenu :pos="contextPosition" v-model:menuVisible="menuVisible" :editorFileId="editorFileId"/>
 </template>
 
 <style scoped>

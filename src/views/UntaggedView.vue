@@ -2,6 +2,7 @@
 import { useQuery } from "@pinia/colada";
 import { computed, ref } from "vue";
 import { getFiles, getSongs } from "@/api/song";
+import MyContextMenu from "@/components/MyContextMenu.vue";
 import { AUDIO_FILE_STORE_KEY, SONG_STORE_KEY } from "@/main";
 import { usePlaySong } from "@/store/mutations";
 import type { AudioFile } from "@/types/AudioFile";
@@ -44,6 +45,24 @@ function playFile(file: AudioFile) {
 		created_at: file.created_at,
 	});
 }
+
+const editorFileId = ref<number | null>(null);
+
+const menuVisible = ref(false);
+const contextPosition = ref({ x: 0, y: 0 });
+
+const onContextMenu = (e: MouseEvent, fileId: number) => {
+	// Prevent the browser's default right-click menu from opening
+	e.preventDefault();
+
+	// Update coordinates to where the mouse clicked
+	contextPosition.value.x = e.clientX;
+	contextPosition.value.y = e.clientY;
+
+	// Show the menu
+	menuVisible.value = true;
+	editorFileId.value = fileId;
+};
 </script>
 
 <template>
@@ -61,13 +80,14 @@ function playFile(file: AudioFile) {
                 <col class="col-duration">
             </colgroup>
             <tbody>
-                <tr class="song" @click="playFile(file)" v-for="file in untaggedFiles" :key="file.id">
+                <tr class="song" @click="playFile(file)" v-for="file in untaggedFiles" :key="file.id" @contextmenu="onContextMenu($event, file.id)">
                     <td class="name" v-if="file.file_name">{{file.file_name}}</td>
                     <td class="duration">{{formatDuration(file.duration)}}</td>
                 </tr>
             </tbody>
         </table>
     </div>
+    <MyContextMenu :pos="contextPosition" v-model:menuVisible="menuVisible" :editorFileId="editorFileId"/>
 </template>
 
 <style scoped>

@@ -71,7 +71,7 @@ async function updateMetadata() {
                 <div class="label">Album</div>
                 <input type="text" placeholder="Album" v-model="resp.metadata.album"/>
             </label>
-            <img :src="`${URL_ROOT}/${(resp.metadata.cover_path ?? undefined)}`"/>
+            <!-- <img :src="`${URL_ROOT}/${(resp.metadata.cover_path ?? undefined)}`"/> -->
             <hr/>
         </div>
         <button>Submit</button>
