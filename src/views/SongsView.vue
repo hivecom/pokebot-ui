@@ -5,11 +5,7 @@ import { getAlbums } from "@/api/album.ts";
 import AlbumPane from "@/components/AlbumPane.vue";
 import { ALBUM_STORE_KEY } from "@/main";
 
-const {
-	state: albumList,
-	asyncStatus,
-	refresh,
-} = useQuery({
+const { state: albumList, asyncStatus } = useQuery({
 	key: ALBUM_STORE_KEY,
 	query: getAlbums,
 });

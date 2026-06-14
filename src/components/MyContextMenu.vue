@@ -44,6 +44,7 @@ const openEditor = () => {
 		title: null,
 		artist: null,
 		album: null,
+		disc_number: null,
 	};
 	editorData.value = [
 		{

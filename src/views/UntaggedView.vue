@@ -40,6 +40,7 @@ function playFile(file: AudioFile) {
 		track: null,
 		title: file.file_name,
 		artist: "Unknown Artist",
+		disc_number: null,
 		album: null,
 		favourite_count: 0,
 		created_at: file.created_at,

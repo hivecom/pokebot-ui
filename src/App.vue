@@ -9,8 +9,8 @@ const auth = useAuthStore();
 
 <template>
     <template v-if="auth.token">
-    <SplitView/>
-    <PlayerPane/>
+        <SplitView/>
+        <PlayerPane/>
     </template>
     <LoginView v-else/>
 </template>

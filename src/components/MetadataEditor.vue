@@ -40,6 +40,7 @@ async function updateMetadata() {
 				title: ul.metadata.title,
 				artist: ul.metadata.artist,
 				album: ul.metadata.album,
+				disc_number: ul.metadata.disc_number,
 				cover_path: ul.metadata.cover_path,
 			});
 		}),
@@ -70,6 +71,10 @@ async function updateMetadata() {
             <label>
                 <div class="label">Album</div>
                 <input type="text" placeholder="Album" v-model="resp.metadata.album"/>
+            </label>
+            <label>
+                <div class="label">Disc</div>
+                <input type="text" placeholder="Disc Number" v-model="resp.metadata.disc_number"/>
             </label>
             <!-- <img :src="`${URL_ROOT}/${(resp.metadata.cover_path ?? undefined)}`"/> -->
             <hr/>

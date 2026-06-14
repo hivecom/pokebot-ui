@@ -49,6 +49,11 @@ const totalDuration = computed(() => {
 	);
 });
 
+const discs = computed(() => {
+	const discs = [...new Set(filteredSongs.value.map((s) => s.disc_number))];
+	return discs.sort();
+});
+
 const { mutate: playSong } = usePlaySong();
 
 const editorFileId = ref<number | null>(null);
@@ -84,29 +89,66 @@ const onContextMenu = (e: MouseEvent, fileId: number) => {
                 </div>
             </div>
         </div>
-        <table>
-            <colgroup>
-                <col class="col-num">
-                <col class="col-name">
-                <col class="col-likes">
-                <col class="col-duration">
-              </colgroup>
-            <tbody>
-                <tr class="song" @click="playSong(song)" v-for="song in filteredSongs" :key="song.id" @contextmenu="onContextMenu($event, song.file_id)">
-                    <td class="number" v-if="song.track">{{song.track}}.</td>
-                    <td class="number" v-else></td>
-                    <th class="name" scope="row">{{song.title}}</th>
-                    <td class="likes">{{song.favourite_count}} <FavouriteButton :songId="song.id"/></td>
-                    <td class="duration">{{formatDuration(audioFiles.data?.find(f => f.id === song.file_id)?.duration ?? null)}}</td>
-                </tr>
-            </tbody>
-        </table>
+        <template v-for="disc in discs">
+            <div class="disc-separator">
+                <span class="disc-text">Disc {{disc}}</span>
+            </div>
+            <table>
+                <colgroup>
+                    <col class="col-num">
+                    <col class="col-name">
+                    <col class="col-likes">
+                    <col class="col-duration">
+                </colgroup>
+                <tbody>
+                    <template v-for="song in filteredSongs" :key="song.id">
+                        <tr class="song" @click="playSong(song)" @contextmenu="onContextMenu($event, song.file_id)" v-if="song.disc_number === disc">
+                            <td class="number" v-if="song.track">{{song.track}}.</td>
+                            <td class="number" v-else></td>
+                            <th class="name" scope="row">{{song.title}}</th>
+                            <td class="likes">{{song.favourite_count}} <FavouriteButton :songId="song.id"/></td>
+                            <td class="duration">{{formatDuration(audioFiles.data?.find(f => f.id === song.file_id)?.duration ?? null)}}</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </template>
 
         <MyContextMenu :pos="contextPosition" v-model:menuVisible="menuVisible" :editorFileId="editorFileId"/>
     </div>
 </template>
 
 <style scoped>
+
+
+.disc-separator {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    color: var(--dark-color-text);
+    opacity: 0.8;
+
+    .disc-text {
+        background-color: black;
+        z-index: 3;
+        padding: 0px 5px;
+    }
+
+    &::before {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 0;
+        right: 0;
+        border-bottom: 1px solid var(--dark-color-bg-accent-lowered);
+        opacity: .8;
+        z-index: 1;
+    }
+}
+
 .album {
     margin-right: 5px;
 
