@@ -90,8 +90,11 @@ const onContextMenu = (e: MouseEvent, fileId: number) => {
             </div>
         </div>
         <template v-for="disc in discs">
-            <div class="disc-separator">
+            <div class="disc-separator" v-if="disc">
                 <span class="disc-text">Disc {{disc}}</span>
+            </div>
+            <div class="disc-separator" v-else-if="discs.length > 1">
+                <span class="disc-text">Unknown Disc</span>
             </div>
             <table>
                 <colgroup>

@@ -91,8 +91,8 @@ async function updateMetadata() {
     transform: translate(-50%, -50%);
     border-radius: 10px;
 
-        background-color: var(--dark-color-bg);
-        border: 1px solid var(--dark-color-border-weak);
+    background-color: var(--dark-color-bg);
+    border: 1px solid var(--dark-color-border-weak);
 
     display: flex;
     flex-direction: column;
@@ -100,6 +100,8 @@ async function updateMetadata() {
 
     overflow-y: scroll;
     max-height: 90vh;
+
+    z-index: 50;
 
     p {
         margin-bottom: 30px;
