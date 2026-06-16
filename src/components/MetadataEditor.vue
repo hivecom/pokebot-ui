@@ -62,7 +62,7 @@ async function updateMetadata() {
             </label>
             <label>
                 <div class="label">Title</div>
-                <input type="text" placeholder="Titel" v-model="resp.metadata.title"/>
+                <input type="text" placeholder="Title" v-model="resp.metadata.title"/>
             </label>
             <label>
                 <div class="label">Artist</div>
@@ -74,7 +74,7 @@ async function updateMetadata() {
             </label>
             <label>
                 <div class="label">Disc</div>
-                <input type="text" placeholder="Disc Number" v-model="resp.metadata.disc_number"/>
+                <input type="number" placeholder="Disc Number" v-model.number="resp.metadata.disc_number"/>
             </label>
             <!-- <img :src="`${URL_ROOT}/${(resp.metadata.cover_path ?? undefined)}`"/> -->
             <hr/>
